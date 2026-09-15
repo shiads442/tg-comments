@@ -1,0 +1,36 @@
+<textarea id="commentText" placeholder="Напишіть свою думку..."></textarea>
+<button onclick="sendComment()">Надіслати</button>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function sendComment() {
+        let text = document.getElementById('commentText').value.trim();
+        if (!text) {
+            alert('Введіть текст коментаря!');
+            return;
+        }
+
+        fetch('/api/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                text: text,
+                user: tg.initDataUnsafe.user || { id: 0, first_name: "Гість", username: "unknown" }
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                alert('Коментар успішно надіслано!');
+                tg.close();
+            } else {
+                alert('Помилка надсилання.');
+            }
+        })
+        .catch(err => {
+            alert('Помилка мережі.');
+        });
+    }
+</script>
